@@ -59,12 +59,17 @@
     font-size: 18px;
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+.online-users-header.nickName {
+    width: auto;
     justify-content: space-between;
+    padding: 0 20px;
 }
 
 .users-list{
     list-style: none;
-    padding: 0px;
+    padding: 0;
     margin: 0;
     max-height: 300px;
 }
@@ -92,7 +97,7 @@
 }
 
 .message-area{
-    height: 250px;
+    height: 300px;
 }
 
 .message-control{
@@ -105,7 +110,7 @@
     background: #eee;
     resize: none;
     outline: none;
-    font-family: 'KoHo', sans-serif;
+    font-family: 'Roboto', sans-serif;
     box-sizing: border-box;
     padding: 5px;
     display: inline-block;
@@ -142,7 +147,7 @@
 .message-area ul{
     padding: 0;
     margin: 0;
-    height: 250px;
+    height: 300px;
     overflow-y: scroll;
 }
 .message-area ul li{
@@ -166,7 +171,6 @@
 }
 
 .message-area ul .message-text{
-    background: #028aff;
     border-radius: 5px;
     color: #fff;
     font-size: 13px;
@@ -175,7 +179,12 @@
     margin: 0 5px;
     max-width: 270px;
 }
-
+.message-text.userMessage {
+    background: #028aff;
+}
+.message-text.senderMessage {
+    background: rgb(177, 176, 176);
+}
 .file-input-container{
     position: relative;
 }
@@ -201,6 +210,18 @@
     border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     margin: 0 5px;
+    width: 180px;
+    position: relative;
+    height: 200px;
+}
+
+.image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .attachement-display{
@@ -223,4 +244,41 @@
     margin: 0 5px;
     cursor: pointer;
     color: rgba(0, 0, 0, 0.4);
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 3px;
+}
+.addedImgBody {
+    display: flex;
+    column-gap: 3px;
+}
+.addedImgContainer {
+    position: relative;
+    width: 60px;
+    height: 100px;
+}
+.addedImgContainer img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+}
+
+.addedImgContainer span {
+    position: absolute;
+    right: 1px;
+    top:1px;
+    width: 15px;
+    height: 15px;
+    color: white;
+    z-index: 3;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
 }

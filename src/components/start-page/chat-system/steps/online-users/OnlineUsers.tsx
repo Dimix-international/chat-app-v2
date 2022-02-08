@@ -1,15 +1,14 @@
 import React from "react";
-import {useGetOnlineUsers} from "../../hooks/useGetOnlineUsers";
-
+import {UsersType, UserType} from "../../../../../types/types";
 
 type TStepTwo = {
     userId: string
-    onUserSelect: (name: string, id:string) => void
+    onUserSelect: (name: string, id: string) => void
+    checkUnseenMessages: (receiver: UserType) => number
+    onlineUsers:UsersType
 }
 export const OnlineUsers: React.FC<TStepTwo> = React.memo((props) => {
-    const {userId, onUserSelect} = props;
-
-    const {onlineUsers} = useGetOnlineUsers();
+    const {userId, onUserSelect, checkUnseenMessages, onlineUsers} = props;
 
     return (
         <>
@@ -26,8 +25,17 @@ export const OnlineUsers: React.FC<TStepTwo> = React.memo((props) => {
                                 <li key={user.id}
                                     onClick={() => onUserSelect(user.nickName, user.id)}
                                 >
-                                    <span style={{textTransform: 'capitalize'}}>{user.nickName}</span>
-                                    <span className={'new-message-count'}>0</span>
+                                    <span
+                                        style={{textTransform: 'capitalize'}}>{user.nickName}</span>
+                                    {
+                                        checkUnseenMessages(user) !== 0
+                                            ? <span
+                                                className={'new-message-count'}>
+                                                {checkUnseenMessages(user)}
+                                              </span>
+                                            : null
+                                    }
+
                                 </li>
                             )
                         } else return null

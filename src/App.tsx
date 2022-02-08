@@ -1,13 +1,15 @@
 import React from 'react';
 import './App.css';
-import {io} from "socket.io-client";
 import {StartPage} from "./components/start-page/StartPage";
+import {ChatProvider} from "./providers/ChatProvider";
 
 
 function App() {
     return (
         <div className="App">
-            <StartPage/>
+            <ChatProvider>
+                <StartPage/>
+            </ChatProvider>
         </div>
     );
 }
