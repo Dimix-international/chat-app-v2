@@ -5,9 +5,15 @@ import attachment from '../../../../../assets/paper-clip.png';
 import {useSendMessage} from "../../hooks/useSendMessage";
 import {GroupMessagesType} from "../../../../../types/types";
 import {sortNames} from "../../../../../helpers/sort-names";
-import {giveAvatar} from "../../../../../helpers/giveAvatar";
 import {convertBase64} from "../../../../../helpers/converter-base64";
 import {useGoToBottom} from "../../hooks/useGoToBottom";
+import 'emoji-mart/css/emoji-mart.css'; //иконки emojiIcon.png
+import emojiIcon from '../../../../../assets/emojiIcon.png';
+import {HeaderMessages} from "./HeaderMessages";
+import {BodyMessagesArea} from "./BodyMessagesArea";
+import {ShowAddedFiles} from "./ShowAddedFiles";
+import {useClickOutside} from "../../../../../hooks/useOutsideClick";
+
 
 type TStepThree = {
     userId: string
@@ -19,9 +25,31 @@ type TStepThree = {
 export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
     const {selectedUser, avatarUser, userId, chatState, onChatClose} = props;
     const {sendMessage} = useSendMessage();
-    const {register, handleSubmit, reset, getValues} = useForm({mode: 'onChange'});
+    const {
+        register,
+        handleSubmit,
+        reset,
+        getValues,
+        setValue,
+    } = useForm({mode: 'onChange'});
 
-    const [showAddedFile, setShowAddedFile] = useState<Array<string> | null>(null)
+    const [showAddedFile, setShowAddedFile] = useState<Array<string> | null>(null);
+
+    const [showEmoji, setShowEmoji] = useState(false);
+
+    const handleEmojiShow = () => {
+        setShowEmoji(v => !v)
+    };
+
+    const handleEmojiSelect = (e: any) => {
+        setValue('text', getValues().text + e.native, {
+            shouldDirty: true
+        })
+    };
+    const emojiRef = useClickOutside(() => {
+        //закрываем меню при клике снаружи
+        setShowEmoji(false);
+    })
 
     const sendMessageHandler = async (data: any) => {
         if (!data.text && !showAddedFile) return
@@ -40,7 +68,7 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
 
     const messages = chatState ? chatState[sortNames(userId, selectedUser?.id || '')] : null;
 
-    const showFile = async (e:FormEvent<HTMLFormElement>) => {
+    const showFile = async (e: FormEvent<HTMLFormElement>) => {
         const values = getValues();
         const eventName = (e.target as HTMLFormElement).name;
 
@@ -48,73 +76,41 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
             let mediaFile = await convertBase64(values.file[0]) as string;
             setShowAddedFile(showAddedFile ? [...showAddedFile, mediaFile] : [mediaFile])
         }
-    }
+    };
+
     const resetFile = (file: string) => {
         const index = showAddedFile?.indexOf(file);
-        if (index && index > -1) {
-            const newArray = showAddedFile?.splice(index, 1)
-            newArray && setShowAddedFile([...newArray])
+        if (index !== undefined && index > -1) {
+            if (showAddedFile?.length === 1) {
+                setShowAddedFile([])
+            } else {
+                const newArray = showAddedFile?.splice(index, 1);
+                newArray && setShowAddedFile([...newArray])
+            }
         }
-    }
+    };
 
     useGoToBottom(userId, selectedUser?.id || ''); //скорлинг автоматический
 
     return (
         <>
-            <div className={`online-users-header nickName`}>
-                <div onClick={onChatClose} style={{cursor: 'pointer'}}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25"
-                         height="25" fill="currentColor"
-                         className="bi bi-arrow-left" viewBox="0 0 16 16">
-                        <path
-                            d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                    </svg>
-                </div>
-                <div>
-                    {selectedUser?.nickName}
-                </div>
-            </div>
-            <div className={'message-area'}>
-                <ul>
-                    {
-                        messages && messages.map((msg, index) => (
-                            <li key={index} style={{
-                                flexDirection: userId === msg.senderUser
-                                    ? 'row'
-                                    : 'row-reverse'
-                            }}>
-                                <div className={'user-pic'}>
-                                    <img src={giveAvatar(msg.avatar)} alt="icon"/>
-                                </div>
-                                <div className={'message-content'}>
-                                    {
-                                        msg.media && msg.media.map((img, index) => (
-                                            <div key={index}
-                                                 className={'image-container'}>
-                                                <img src={img} alt='picture'/>
-                                            </div>
-                                        ))
-                                    }
-                                    {
-                                        msg.textMessage &&
-                                        <div
-                                            className={`message-text ${userId === msg.senderUser ? 'userMessage' : 'senderMessage'}`}>
-                                            {msg.textMessage}
-                                        </div>
-                                    }
-                                </div>
-                            </li>
-                        ))
-                    }
-                </ul>
-            </div>
+            <HeaderMessages onChatClose={onChatClose}
+                            nickName={selectedUser?.nickName || ''}/>
+            <BodyMessagesArea userId={userId} messages={messages}
+                              showEmoji={showEmoji}
+                              handleEmojiSelect={handleEmojiSelect}
+                              emojiRef={emojiRef}/>
             <form className={'message-control'}
                   onSubmit={handleSubmit(sendMessageHandler)}
                   onChange={showFile}
             >
-                <textarea {...register('text')}
-                          placeholder={'Type your message...'}
+                <textarea  {...register('text')}
+                           placeholder={'Type your message...'}
                 />
+                <button style={{background: "#eee"}} type={'button'}
+                        onClick={handleEmojiShow}>
+                    <img src={emojiIcon} alt="emoji"/>
+                </button>
                 <div className={'file-input-container'}>
                     <input
                         type="file"
@@ -134,14 +130,8 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
                 </button>
             </form>
             {
-                showAddedFile && <div className={'addedImgBody'}>
-                    {showAddedFile.map((file, index) => (
-                        <div key={index} className={'addedImgContainer'}>
-                            <img src={file} alt={'file'}/>
-                            <span onClick={() => resetFile(file)}>x</span>
-                        </div>
-                    ))}
-                </div>
+                showAddedFile && <ShowAddedFiles showAddedFile={showAddedFile}
+                                                 resetFile={resetFile}/>
             }
         </>
     )

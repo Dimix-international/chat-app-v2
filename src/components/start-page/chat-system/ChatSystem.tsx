@@ -30,9 +30,9 @@ export const ChatSystem = React.memo((props) => {
     }, [])
 
     const checkUnseenMessages = useCallback((receiver: UserType) => {
-
         const key = sortNames(newUserCreated.current?.userId || '', receiver.id);
         let unseenMessages = [];
+
         if (chatState) {
             if (key in chatState) {
                 unseenMessages = chatState[key].filter(msg => !msg.isViewMessages)
