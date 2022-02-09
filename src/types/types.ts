@@ -9,6 +9,7 @@ export type InfoMessageType = {
     avatar:string;
     media:Array<string> | null;
     isViewMessages:boolean;
+    isTypingMessage: boolean;
 }
 
 export type GroupMessagesType = {
@@ -20,11 +21,9 @@ export type UpdateViewCountType = {
     receiverId:string
 }
 
-export type CreateUserType = {
-    id:string;
-    avatar:string
-}
-export type StateChatType = {
-    user:CreateUserType,
-    groupMessages: GroupMessagesType
+export type UserTypingMessageType = {
+    receivedUser:string;
+    isTypingMessage: boolean;
+    avatar:string;
+    textMessage:string;
 }

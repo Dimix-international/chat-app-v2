@@ -1,4 +1,4 @@
-import React, {FormEvent, useState} from "react";
+import React, {FormEvent, useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import sendIcon from '../../../../../assets/send.png';
 import attachment from '../../../../../assets/paper-clip.png';
@@ -13,6 +13,8 @@ import {HeaderMessages} from "./HeaderMessages";
 import {BodyMessagesArea} from "./BodyMessagesArea";
 import {ShowAddedFiles} from "./ShowAddedFiles";
 import {useClickOutside} from "../../../../../hooks/useOutsideClick";
+import {useWatchTypingUser} from "../../hooks/useWathTypingUser";
+import {useTypingMessage} from "../../hooks/useTypingMessage";
 
 
 type TStepThree = {
@@ -25,6 +27,9 @@ type TStepThree = {
 export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
     const {selectedUser, avatarUser, userId, chatState, onChatClose} = props;
     const {sendMessage} = useSendMessage();
+    const {typingMessage} = useTypingMessage();
+    const {userTyping} = useWatchTypingUser();
+
     const {
         register,
         handleSubmit,
@@ -51,19 +56,29 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
         setShowEmoji(false);
     })
 
-    const sendMessageHandler = async (data: any) => {
-        if (!data.text && !showAddedFile) return
-
+    const sendMessageHandler = (data: any) => {
+        if (!data.text && !showAddedFile?.length) return
+        typingMessageHandler(false);
         sendMessage({
             senderUser: userId,
             receivedUser: selectedUser?.id || '',
             textMessage: data.text,
             media: showAddedFile,
             avatar: avatarUser,
-            isViewMessages: false
+            isViewMessages: false,
+            isTypingMessage: false,
         })
         reset();
         setShowAddedFile(null);
+    }
+
+    const typingMessageHandler = (isTyping:boolean) => {
+        typingMessage({
+            receivedUser: selectedUser?.id || '',
+            isTypingMessage: isTyping,
+            avatar: avatarUser,
+            textMessage: '...',
+        })
     }
 
     const messages = chatState ? chatState[sortNames(userId, selectedUser?.id || '')] : null;
@@ -72,6 +87,11 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
         const values = getValues();
         const eventName = (e.target as HTMLFormElement).name;
 
+        if(values.text || values.file.length) {
+            typingMessageHandler(true)
+        } else{
+            typingMessageHandler(false)
+        }
         if (values.file.length && eventName !== 'text') {
             let mediaFile = await convertBase64(values.file[0]) as string;
             setShowAddedFile(showAddedFile ? [...showAddedFile, mediaFile] : [mediaFile])
@@ -79,16 +99,20 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
     };
 
     const resetFile = (file: string) => {
+        const values = getValues();
         const index = showAddedFile?.indexOf(file);
         if (index !== undefined && index > -1) {
             if (showAddedFile?.length === 1) {
                 setShowAddedFile([])
+                !values.text && typingMessageHandler(false)
+
             } else {
                 const newArray = showAddedFile?.splice(index, 1);
                 newArray && setShowAddedFile([...newArray])
             }
         }
     };
+
 
     useGoToBottom(userId, selectedUser?.id || ''); //скорлинг автоматический
 
@@ -99,13 +123,16 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
             <BodyMessagesArea userId={userId} messages={messages}
                               showEmoji={showEmoji}
                               handleEmojiSelect={handleEmojiSelect}
-                              emojiRef={emojiRef}/>
+                              emojiRef={emojiRef}
+                              userTyping={userTyping}
+            />
             <form className={'message-control'}
                   onSubmit={handleSubmit(sendMessageHandler)}
                   onChange={showFile}
             >
-                <textarea  {...register('text')}
-                           placeholder={'Type your message...'}
+                <textarea
+                    {...register('text')}
+                    placeholder={'Type your message...'}
                 />
                 <button style={{background: "#eee"}} type={'button'}
                         onClick={handleEmojiShow}>

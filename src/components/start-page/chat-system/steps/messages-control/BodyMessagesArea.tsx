@@ -1,7 +1,11 @@
 import React, {MutableRefObject} from "react";
 import {giveAvatar} from "../../../../../helpers/giveAvatar";
 import {Picker} from "emoji-mart";
-import {InfoMessageType} from "../../../../../types/types"; //иконки
+import {
+    InfoMessageType,
+    UserTypingMessageType
+} from "../../../../../types/types";
+import {useGoToBottom} from "../../hooks/useGoToBottom"; //иконки
 
 type BodyMessagesAreaType = {
     userId:string
@@ -9,9 +13,10 @@ type BodyMessagesAreaType = {
     showEmoji:any
     handleEmojiSelect:(e: any) => void
     emojiRef:MutableRefObject<HTMLDivElement | null>
+    userTyping:UserTypingMessageType | null
 }
 export const BodyMessagesArea:React.FC<BodyMessagesAreaType> = React.memo(props => {
-    const {userId, messages, showEmoji, handleEmojiSelect, emojiRef} = props;
+    const {userId, messages, showEmoji, handleEmojiSelect, emojiRef, userTyping} = props;
 
     return (
         <>
@@ -57,6 +62,21 @@ export const BodyMessagesArea:React.FC<BodyMessagesAreaType> = React.memo(props 
                                     </div>
                                 </li>
                             ))
+                        }
+                        {
+                            userTyping?.isTypingMessage && <li  style={{
+                                flexDirection: 'row-reverse'
+                            }}>
+                                <div className={'user-pic'}>
+                                    <img src={giveAvatar(userTyping?.avatar)} alt="icon"/>
+                                </div>
+                                <div className={'message-content'}>
+                                    <div
+                                        className={`message-text senderMessage`}>
+                                        {userTyping?.textMessage}
+                                    </div>
+                                </div>
+                            </li>
                         }
                     </ul>
                 </div>
