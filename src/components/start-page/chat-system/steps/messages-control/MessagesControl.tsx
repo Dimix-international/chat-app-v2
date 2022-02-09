@@ -1,20 +1,18 @@
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {FormEvent, useState} from "react";
 import {useForm} from "react-hook-form";
-import sendIcon from '../../../../../assets/send.png';
-import attachment from '../../../../../assets/paper-clip.png';
 import {useSendMessage} from "../../hooks/useSendMessage";
 import {GroupMessagesType} from "../../../../../types/types";
 import {sortNames} from "../../../../../helpers/sort-names";
 import {convertBase64} from "../../../../../helpers/converter-base64";
 import {useGoToBottom} from "../../hooks/useGoToBottom";
 import 'emoji-mart/css/emoji-mart.css'; //иконки emojiIcon.png
-import emojiIcon from '../../../../../assets/emojiIcon.png';
 import {HeaderMessages} from "./HeaderMessages";
 import {BodyMessagesArea} from "./BodyMessagesArea";
 import {ShowAddedFiles} from "./ShowAddedFiles";
 import {useClickOutside} from "../../../../../hooks/useOutsideClick";
 import {useWatchTypingUser} from "../../hooks/useWathTypingUser";
 import {useTypingMessage} from "../../hooks/useTypingMessage";
+import {MessagesForm} from "./MessagesForm";
 
 
 type TStepThree = {
@@ -72,7 +70,7 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
         setShowAddedFile(null);
     }
 
-    const typingMessageHandler = (isTyping:boolean) => {
+    const typingMessageHandler = (isTyping: boolean) => {
         typingMessage({
             receivedUser: selectedUser?.id || '',
             isTypingMessage: isTyping,
@@ -87,9 +85,9 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
         const values = getValues();
         const eventName = (e.target as HTMLFormElement).name;
 
-        if(values.text || values.file.length) {
+        if (values.text || values.file.length) {
             typingMessageHandler(true)
-        } else{
+        } else {
             typingMessageHandler(false)
         }
         if (values.file.length && eventName !== 'text') {
@@ -113,8 +111,7 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
         }
     };
 
-
-    useGoToBottom(userId, selectedUser?.id || ''); //скорлинг автоматический
+   useGoToBottom(userId, selectedUser?.id || ''); //скорлинг автоматический
 
     return (
         <>
@@ -125,37 +122,17 @@ export const MessagesControl: React.FC<TStepThree> = React.memo((props) => {
                               handleEmojiSelect={handleEmojiSelect}
                               emojiRef={emojiRef}
                               userTyping={userTyping}
+
             />
-            <form className={'message-control'}
-                  onSubmit={handleSubmit(sendMessageHandler)}
-                  onChange={showFile}
-            >
-                <textarea
-                    {...register('text')}
-                    placeholder={'Type your message...'}
-                />
-                <button style={{background: "#eee"}} type={'button'}
-                        onClick={handleEmojiShow}>
-                    <img src={emojiIcon} alt="emoji"/>
-                </button>
-                <div className={'file-input-container'}>
-                    <input
-                        type="file"
-                        {...register('file')} id={'hidden-file'}
-                        /*accept={'.jpg,.jpeg,.png, .webm,.mp4,.ogg'}*/
-                        accept={'.jpg,.jpeg,.png'}
-                        disabled={!!(showAddedFile && showAddedFile?.length > 3)}
-                    />
-                    <label htmlFor='hidden-file'>
-                        <img style={{width: '20px'}} src={attachment}
-                             alt="file"/>
-                    </label>
-                </div>
-                <button type={'submit'}>
-                    <img src={sendIcon} alt="send"/>
-                    <span style={{display: 'inline-block'}}>Send</span>
-                </button>
-            </form>
+            <MessagesForm
+                handleSubmit={handleSubmit}
+                register={register}
+                showFile={showFile}
+                handleEmojiShow={handleEmojiShow}
+                showAddedFile={showAddedFile}
+                sendMessageHandler={sendMessageHandler}
+
+            />
             {
                 showAddedFile && <ShowAddedFiles showAddedFile={showAddedFile}
                                                  resetFile={resetFile}/>

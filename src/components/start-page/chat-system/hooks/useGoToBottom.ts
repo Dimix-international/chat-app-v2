@@ -13,3 +13,6 @@ export const useGoToBottom = (senderId:string, receiverId:string) => {
         }
     },[chatState,receiverId,senderId]);
 }
+
+
+
