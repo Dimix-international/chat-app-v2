@@ -203,54 +203,6 @@ export const BodyMessagesArea: React.FC<BodyMessagesAreaType> = React.memo(props
                         }
                         }
                     </AutoSizer>
-                    {/!*<ul>
-                        {
-                            messages && messages.map((msg, index) => (
-                                <li key={index} style={{
-                                    flexDirection: userId === msg.senderUser
-                                        ? 'row'
-                                        : 'row-reverse'
-                                }}>
-                                    <div className={'user-pic'}>
-                                        <img src={giveAvatar(msg.avatar)} alt="icon"/>
-                                    </div>
-                                    <div className={'message-content'}>
-                                        {
-                                            msg.media && msg.media.map((img, index) => (
-                                                <div key={index}
-                                                     className={'image-container'}>
-                                                    <img src={img} alt='picture'/>
-                                                </div>
-                                            ))
-                                        }
-                                        {
-                                            msg.textMessage &&
-                                            <div
-                                                className={`message-text ${userId === msg.senderUser ? 'userMessage' : 'senderMessage'}`}>
-                                                {msg.textMessage}
-                                            </div>
-                                        }
-                                    </div>
-                                </li>
-                            ))
-                        }
-                        {
-                            userTyping?.isTypingMessage && <li style={{
-                                flexDirection: 'row-reverse'
-                            }}>
-                                <div className={'user-pic'}>
-                                    <img src={giveAvatar(userTyping?.avatar)}
-                                         alt="icon"/>
-                                </div>
-                                <div className={'message-content'}>
-                                    <div
-                                        className={`message-text senderMessage`}>
-                                        {userTyping?.textMessage}
-                                    </div>
-                                </div>
-                            </li>
-                        }
-                    </ul>*!/}
                 </div>
             }
         </>
